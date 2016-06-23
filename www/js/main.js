@@ -1,27 +1,36 @@
 $(document).ready(function(){	//executed after the page has loaded
 	//console.log(window.localStorage);
 	var webserviceUrl = 'http://192.168.2.15/webservice/';
+	if(localStorage.getItem("loggedIn") !== '1')
 	loadPage('login');
-	//login(webserviceUrl);
+	else
+	loadPage('dashboard');
 });
 
 function loadPage(page){
-	var baseUrl = '/';
 	var extension = '.html';
+	$('#content').html('<div class="text-center"><hr><br><img src="img/loading.gif"><br></div>');
 	$.ajax({
 		type: "GET",
-		url: baseUrl+page+extension,
-		crossDomain: false,
-		cache: false,
-		beforeSend: function(){},
+		url: page+extension,
 		success: function(data){
 			$('#content').html(data);
+			window[page]();
 		}
 	});
 }
 
+function dashboard(){
+	$("#logout").on('click', function(e){
+		e.preventDefault();
+		window.localStorage.removeItem("loggedIn");
+		window.localStorage.removeItem("username");
+		loadPage('login');
+	});
+}
 
-function login(webserviceUrl){
+function login(){
+	var webserviceUrl = 'http://192.168.2.15/webservice/';
 	var page = 'login.php';
 	$("form#login").on("submit", function(e){
 		e.preventDefault();
@@ -39,6 +48,7 @@ function login(webserviceUrl){
 			success: function(data){
 				window.localStorage.setItem("loggedIn", 1);
 				window.localStorage.setItem("username", username);
+				loadPage('dashboard');
 			}
 		});
 	});
